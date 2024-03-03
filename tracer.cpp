@@ -5,56 +5,21 @@
 
 // most of this code from following https://raytracing.github.io/books/RayTracingInOneWeekend.html
 
-void writeColor(std::ofstream& out, glm::vec3 vec) {
+inline void writeColor(std::ofstream& out, glm::vec3 vec) {
 	out << static_cast<int>(255.999 * vec.x) << ' '
 		<< static_cast<int>(255.999 * vec.y) << ' '
 		<< static_cast<int>(255.999 * vec.z) << '\n';
 }
 
-// todo: solve these formulas myself
-// i'm blindly following in the interest of time
-bool traceSphere::hit(const ray& r, float tMin, float tMax, rayhit& hit) const {
-	// t^2 * dot(b) + dot(2tb, (A - C)) + dot(A - C, A - C) - r^2 = 0
-	// quad formula
-
-	vec3 oc = r.origin - trans.pos;
-
-	float a = 1; // i make ray directions always normalized
-	float bHalf = dot(oc, r.direction);
-	float c = length2(oc) - radius * radius;
-	float disc = bHalf * bHalf - a*c;
-
-	if (disc < 0) return false;
-
-	float sqrtd = sqrt(disc);
-
-	// find nearest root in range
-	// TODO: solve these formulas myself to internalize
-	// i am just following this blindly in the interest of time
-	float root = (-bHalf - sqrtd) / a;
-	if (root <= tMin || tMax <= root) {
-		root = (-bHalf + sqrtd) / a;
-		if (root <= tMin || tMax <= root)
-			return false;
-	}
-
-	hit.t = root;
-	hit.pos = r.at(root);
-	hit.setNormFromRay(r, (hit.pos - trans.pos) / radius);
-	//hit.norm= (hit.pos - trans.pos) / radius;
-
-	return true;
-}
-
-bool traceScene::hit(const ray& r, float tMin, float tMax, rayhit& hit) const {
+bool traceScene::hit(const ray& r, interval t, rayhit& hit) const {
 	rayhit temp;
 	bool didHit = false;
-	float closestTMax = tMax;
+	interval closest = interval(t.min, t.max);
 
 	for (const auto& obj : traceScene::objects) {
-		if (obj->hit(r, tMin, closestTMax, temp)) {
+		if (obj->hit(r, closest, temp)) {
 			didHit = true;
-			closestTMax = temp.t;
+			closest.max = temp.t;
 			hit = temp;
 		}
 	}
@@ -107,7 +72,7 @@ void render(traceCam cam, traceScene scene) {
 
 			vec3 color = vec3(0);
 
-			if (scene.hit(r, 0, 9999, hit)) {
+			if (scene.hit(r, interval(0, traceInf), hit)) {
 				color = 0.5f * (hit.norm + vec3(1));
 			}
 

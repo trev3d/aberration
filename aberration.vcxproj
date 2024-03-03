@@ -24,7 +24,8 @@
     <ProjectGuid>{c09bdfec-ca69-4775-8663-e304d2375caa}</ProjectGuid>
     <RootNamespace>glmarbles</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>aberration</ProjectName>
+    <ProjectName>
+    </ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

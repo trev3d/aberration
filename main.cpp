@@ -1,13 +1,15 @@
 #include "tracer.h"
+#include "tracerShapes.h"
 
 int main() {
 
     traceCam cam = traceCam();
     cam.trans.apply();
+    cam.focalLength = 0.8f;
 
     traceScene scene;
     traceSphere sphere;
-    sphere.trans.pos = vec3(0, 0, -1);
+    sphere.trans.pos = vec3(-0.2, 0, -1);
     sphere.trans.apply();
     sphere.radius = 0.5f;
 

@@ -11,6 +11,31 @@
 
 using namespace glm;
 
+const float traceInf = std::numeric_limits<float>::infinity();
+const float tracePi = 3.1415926535897932385f;
+
+inline double traceDegToRad(double degrees) {
+	return degrees * tracePi / 180.0f;
+}
+
+#pragma once
+struct interval
+{
+	float min, max;
+
+	interval() : min(traceInf), max(-traceInf) {}
+
+	interval(float min, float max) {
+		this->min = min;
+		this->max = max;
+	}
+
+	static const interval empty, universe;
+};
+
+const static interval empty(+traceInf, -traceInf);
+const static interval universe(-traceInf, +traceInf);
+
 struct traceCam {
 	jtgTransform trans;
 
@@ -49,17 +74,12 @@ struct rayhit {
 
 struct traceable {
 	jtgTransform trans;
-	virtual bool hit(const ray& r, float tMin, float tMax, rayhit& hit) const = 0;
-};
-
-struct traceSphere : traceable {
-	float radius;
-	virtual bool hit(const ray& r, float tMin, float tMax, rayhit& hit) const override;
+	virtual bool hit(const ray& r, interval t, rayhit& hit) const = 0;
 };
 
 struct traceScene : traceable {
 	std::vector<std::shared_ptr<traceable>> objects;
-	virtual bool hit(const ray& r, float tMin, float tMax, rayhit& hit) const override;
+	virtual bool hit(const ray& r, interval t, rayhit& hit) const override;
 };
 
 void render(traceCam cam, traceScene scene);
