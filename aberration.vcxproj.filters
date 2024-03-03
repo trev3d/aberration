@@ -9,6 +9,7 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="transform.cpp" />
+    <ClCompile Include="tracerShapes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -18,6 +19,7 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="tracer.h" />
     <ClInclude Include="transform.h" />
+    <ClInclude Include="tracerShapes.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="wood.png" />

@@ -8,12 +8,12 @@ int main() {
     cam.focalLength = 0.8f;
 
     traceScene scene;
-    traceSphere sphere;
-    sphere.trans.pos = vec3(-0.2, 0, -1);
-    sphere.trans.apply();
-    sphere.radius = 0.5f;
+    traceSphere s1;
+    s1.trans.pos = vec3(-0.4f, 0, -1);
+    s1.trans.apply();
+    s1.radius = 0.5f;
 
-    scene.objects.push_back(std::make_shared<traceSphere>(sphere));
+    scene.objects.push_back(std::make_shared<traceSphere>(s1));
 
     traceSphere s2;
     s2.trans.pos = vec3(0.3f, 0.2f, -0.7f);
@@ -22,5 +22,5 @@ int main() {
 
     scene.objects.push_back(std::make_shared<traceSphere>(s2));
 
-    render(cam, scene);
+    render(cam, scene, 100, 10);
 }

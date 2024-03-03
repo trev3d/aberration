@@ -141,6 +141,7 @@
     <ClInclude Include="rendering.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="tracer.h" />
+    <ClInclude Include="tracerShapes.h" />
     <ClInclude Include="transform.h" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,7 @@
     <ClCompile Include="rendering.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="tracer.cpp" />
+    <ClCompile Include="tracerShapes.cpp" />
     <ClCompile Include="transform.cpp" />
   </ItemGroup>
   <ItemGroup>

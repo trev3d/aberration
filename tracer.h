@@ -6,6 +6,7 @@
 #include <glm/gtx/norm.hpp>
 #include <vector>
 #include <memory>
+#include <cstdlib>
 
 #include "transform.h"
 
@@ -14,11 +15,18 @@ using namespace glm;
 const float traceInf = std::numeric_limits<float>::infinity();
 const float tracePi = 3.1415926535897932385f;
 
-inline double traceDegToRad(double degrees) {
+inline float traceDegToRad(float degrees) {
 	return degrees * tracePi / 180.0f;
 }
 
-#pragma once
+inline float random() {
+	return rand() / (RAND_MAX + 1.0);
+}
+
+inline float random(float min, float max) {
+	return min + (max - min) * random();
+}
+
 struct interval
 {
 	float min, max;
@@ -28,6 +36,12 @@ struct interval
 	interval(float min, float max) {
 		this->min = min;
 		this->max = max;
+	}
+
+	float clamp(float x) const {
+		if (x < min) return min;
+		if (x > max) return max;
+		return x;
 	}
 
 	static const interval empty, universe;
@@ -61,7 +75,7 @@ struct ray {
 };
 
 struct rayhit {
-	vec3 pos = vec3(0, 0, 0);
+	vec3 pos = vec3(0);
 	vec3 norm = vec3(0, 1, 0);
 	float t = 0;
 	bool front = true;
@@ -82,4 +96,4 @@ struct traceScene : traceable {
 	virtual bool hit(const ray& r, interval t, rayhit& hit) const override;
 };
 
-void render(traceCam cam, traceScene scene);
+void render(traceCam cam, traceScene scene, int samples, int bounces);

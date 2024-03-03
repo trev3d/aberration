@@ -5,29 +5,74 @@
 
 // most of this code from following https://raytracing.github.io/books/RayTracingInOneWeekend.html
 
-inline void writeColor(std::ofstream& out, glm::vec3 vec) {
+inline void writeColor(std::ofstream& out, glm::vec3 vec, int samples) {
+
+	vec *= 1.f / (float)samples;
+
 	out << static_cast<int>(255.999 * vec.x) << ' '
 		<< static_cast<int>(255.999 * vec.y) << ' '
 		<< static_cast<int>(255.999 * vec.z) << '\n';
 }
 
+inline vec3 randVec(float min, float max) {
+	return vec3(random(min, max), random(min, max), random(min, max));
+}
+
+inline vec3 randNorm() {
+
+	// reject mag > 1 for equal prob 
+	while (true) {
+		vec3 p = randVec(-1, 1);
+
+		if (length2(p) < 1.0f)
+			return normalize(p);
+	}
+}
+
+inline vec3 randNormHemi(const vec3& norm) {
+	vec3 rand = randNorm();
+
+	if (dot(rand, norm) > 0.f)
+		return rand;
+	return -rand;
+}
+
 bool traceScene::hit(const ray& r, interval t, rayhit& hit) const {
-	rayhit temp;
 	bool didHit = false;
 	interval closest = interval(t.min, t.max);
 
 	for (const auto& obj : traceScene::objects) {
-		if (obj->hit(r, closest, temp)) {
+		if (obj->hit(r, closest, hit)) {
 			didHit = true;
-			closest.max = temp.t;
-			hit = temp;
+			closest.max = hit.t;
 		}
 	}
 
 	return didHit;
 };
 
-void render(traceCam cam, traceScene scene) {
+vec3 rayColor(const ray& r, int bounces, traceScene scene) {
+	rayhit hit;
+
+	if (bounces <= 0) {
+		return vec3(0);
+	}
+
+	if (scene.hit(r, interval(0.001f, traceInf), hit)) {
+
+		if (!hit.front)
+			return vec3(0);
+
+		ray b = ray(hit.pos, randNormHemi(hit.norm));
+		return 0.5f * rayColor(b, bounces - 1, scene);
+
+	} else {
+		float a = 0.5f * (r.direction.y + 1.0f);
+		return (1.0f - a) * vec3(1) + a * vec3(0.5f, 0.7f, 1.0f);
+	}
+}
+
+void render(traceCam cam, traceScene scene, int samples, int bounces) {
 	// Image
 
 	vec3 camCenter = cam.trans.pos;
@@ -62,21 +107,21 @@ void render(traceCam cam, traceScene scene) {
 
 		for (int u = 0; u < imgWidth; ++u) {
 
-			vec3 pixelCenter = view0 + viewUDelta * (float)u + viewVDelta * (float)v;
+			vec3 sampleColor = vec3(0);
 
-			vec3 rayDir = pixelCenter - camCenter;
+			for (int s = 0; s < samples; s++) {
+				vec3 pixelCenter = view0 + viewUDelta * (float)u + viewVDelta * (float)v;
 
-			ray r = ray(camCenter, rayDir);
+				vec3 randOffset = viewUDelta * (-0.5f + random()) + viewVDelta * (-0.5f + random());
 
-			rayhit hit;
+				vec3 rayDir = pixelCenter + randOffset - camCenter;
 
-			vec3 color = vec3(0);
-
-			if (scene.hit(r, interval(0, traceInf), hit)) {
-				color = 0.5f * (hit.norm + vec3(1));
+				ray r = ray(camCenter, rayDir);
+				
+				sampleColor += rayColor(r, bounces, scene);
 			}
 
-			writeColor(output, color);
+			writeColor(output, sampleColor, samples);
 		}
 	}
 
